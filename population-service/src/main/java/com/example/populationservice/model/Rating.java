@@ -1,4 +1,4 @@
-package com.movierecommendation.backend.model;
+package com.example.populationservice.model;
 
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
