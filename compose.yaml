@@ -1,0 +1,28 @@
+version: '3'
+services:
+  backend:
+    container_name: backend
+    build: './backend'
+    volumes:
+      - ./backend:/usr/src/app
+    ports:
+      - '8080:8080'
+    depends_on:
+      - postgres
+    environment:
+      - "SPRING_PROFILES_ACTIVE=prod"
+
+  postgres:
+    container_name: postgres
+    image: 'postgres:16.1'
+    environment:
+      - 'POSTGRES_DB=movie-recommendation'
+      - 'POSTGRES_PASSWORD=francisco2525'
+      - 'POSTGRES_USER=fran'
+    ports:
+      - '5432:5432'
+    volumes:
+      - pg-movies-data:/var/lib/postgresql/data
+volumes:
+  pg-movies-data:
+    external: true
