@@ -22,7 +22,7 @@ public class PopulationServiceApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        File movies = new File("C:\\Users\\tobit\\IdeaProjects\\movie-recommendation\\population-service\\dataSources\\title.basics.tsv\\data-tail8372702.tsv");
+        File movies = new File("/Users/fsavala/IdeaProjects/movie-recommendation/population-service/dataSources/title.basics.tsv/data.tsv");
         moviePopulation.refreshData(movies);
 
     }

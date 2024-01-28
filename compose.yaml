@@ -23,6 +23,6 @@ services:
       - '5432:5432'
     volumes:
       - pg-movies-data:/var/lib/postgresql/data
+
 volumes:
   pg-movies-data:
-    external: true

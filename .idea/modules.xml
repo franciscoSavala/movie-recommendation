@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/frontend.iml" filepath="$PROJECT_DIR$/frontend.iml" />
       <module fileurl="file://$PROJECT_DIR$/movie-recommendation.iml" filepath="$PROJECT_DIR$/movie-recommendation.iml" />
+      <module fileurl="file://$PROJECT_DIR$/population-service/population-service.iml" filepath="$PROJECT_DIR$/population-service/population-service.iml" />
     </modules>
   </component>
 </project>

@@ -15,9 +15,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+
 @Component
 public class MoviePopulation {
     private final MovieRepository movieRepository;
@@ -31,13 +31,14 @@ public class MoviePopulation {
 
     public void refreshData(File movies){
         try(
-                BufferedReader moviesReader = Files.newBufferedReader(movies.toPath());
+                BufferedReader moviesReader = Files.newBufferedReader(movies.toPath())
         ){
             moviesReader.readLine();
             logger.info("[x] Iniciado proceso de carga de datos");
             int maxRecordSaved = 1000;
             long linesCount = 1;
             HashMap<String, Genre> actualGenre = populateGenre();
+            Set<Long> ids = populateIds();
             while(moviesReader.ready()) {
                 List<Movie> moviesReady = new LinkedList<>();
                 String line;
@@ -46,10 +47,11 @@ public class MoviePopulation {
                     String[] lineItems = line.split("\t");
                     linesCount++;
                     Long id = Long.parseLong(lineItems[0].substring(2));
-                    if(movieRepository.existsById(id)) continue;
-
+                    if(ids.contains(id)) continue;
+                    ids.add(id);
                     String[] genre = lineItems[8].split(",");
                     List<Genre> genres = new LinkedList<>();
+
                     for (String g : genre) {
                         if (actualGenre.containsKey(g)) { //4854657
                             genres.add(actualGenre.get(g));
@@ -74,6 +76,7 @@ public class MoviePopulation {
 
                     moviesCount++;
                 }
+
                 movieRepository.saveAll(moviesReady);
                 logger.info("""
                     Se cargaron los datos correctamente
@@ -93,6 +96,10 @@ public class MoviePopulation {
             logger.error("Fallo de I/O al leer archivo");
             throw new RuntimeException(e);
         }
+    }
+
+    private Set<Long> populateIds() {
+        return new HashSet<>(movieRepository.getAllId());
     }
 
     private HashMap<String, Genre> populateGenre() {
