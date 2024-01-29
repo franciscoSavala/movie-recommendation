@@ -19,24 +19,37 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
-public class MoviePopulation {
+public class MoviePopulation implements Populate{
+    private final File movies = new File("/Users/fsavala/IdeaProjects/movie-recommendation/population-service/dataSources/title.basics.tsv/data.tsv");
     private final MovieRepository movieRepository;
     private final GenreRepository genreRepository;
     private static final Logger logger = LoggerFactory.getLogger(MoviePopulation.class);
     @Autowired
-    public MoviePopulation(MovieRepository movieRepository, GenreRepository genreRepository){
+    public MoviePopulation(MovieRepository movieRepository,
+                           GenreRepository genreRepository){
         this.movieRepository = movieRepository;
         this.genreRepository = genreRepository;
     }
 
-    public void refreshData(File movies){
+    public void populate(){
         try(
                 BufferedReader moviesReader = Files.newBufferedReader(movies.toPath())
         ){
             moviesReader.readLine();
             logger.info("[x] Iniciado proceso de carga de datos");
+            Thread.ofVirtual().start(() -> {
+               while(true){
+                   try {
+                       Thread.sleep(5000);
+                       logger.info("""
+                               Peliculas cargadas: {}
+                               """, movieRepository.count());
+                   } catch (InterruptedException e) {
+                       throw new RuntimeException(e);
+                   }
+               }
+            });
             int maxRecordSaved = 1000;
-            long linesCount = 1;
             HashMap<String, Genre> actualGenre = populateGenre();
             Set<Long> ids = populateIds();
             while(moviesReader.ready()) {
@@ -45,7 +58,6 @@ public class MoviePopulation {
                 int moviesCount = 0;
                 while ((line = moviesReader.readLine()) != null && moviesCount < maxRecordSaved) {
                     String[] lineItems = line.split("\t");
-                    linesCount++;
                     Long id = Long.parseLong(lineItems[0].substring(2));
                     if(ids.contains(id)) continue;
                     ids.add(id);
@@ -77,15 +89,9 @@ public class MoviePopulation {
                     moviesCount++;
                 }
 
-                movieRepository.saveAll(moviesReady);
-                logger.info("""
-                    Se cargaron los datos correctamente
-                    Peliculas cargadas: {} | En base de datos: {}
-                    Generos cargados: {}
-                    Ultima linea leída: {}
-                    """, moviesReady.size(), movieRepository.count(),
-                        actualGenre.size(), linesCount
-                );
+                Thread.ofVirtual().start(() -> {
+                    movieRepository.saveAll(moviesReady);
+                });
             }
             logger.info("[x] Finalizado proceso de carga de datos");
 
@@ -107,4 +113,5 @@ public class MoviePopulation {
         genreRepository.findAll().forEach(g -> actualGenre.put(g.getName(), g));
         return actualGenre;
     }
+
 }
