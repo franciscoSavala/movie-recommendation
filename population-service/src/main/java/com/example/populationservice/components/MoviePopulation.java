@@ -44,6 +44,7 @@ public class MoviePopulation implements Populate{
                        logger.info("""
                                Peliculas cargadas: {}
                                """, movieRepository.count());
+
                    } catch (InterruptedException e) {
                        throw new RuntimeException(e);
                    }
